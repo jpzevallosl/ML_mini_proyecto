@@ -1,5 +1,11 @@
 # Mini Proyecto #1: Clasificación de Cardiotocografía Fetal
 
+**Curso:** Aprendizaje de la Máquina — Maestría en Inteligencia Artificial, UTEC
+
+**Equipo:** Josua Zevallos, Pedro Caycho, Marcos Morales
+
+**Repositorio:** https://github.com/jpzevallosl/ML_mini_proyecto
+
 ## Contenido
 - `paper/main.pdf` — Paper compilado (5 páginas, formato IEEE conference)
 - `paper/main.tex` — Fuente LaTeX editable
@@ -35,4 +41,4 @@ Necesita `texlive-publishers` para la clase IEEEtran.
 1. **Test set (127 registros)**: la pestaña 2 que menciona el enunciado no se incluyó en la entrega. Se usó split interno 85/15 (300 muestras) sobre los 1998 disponibles. Cuando reciban la pestaña 2, basta cargarla al final del script y predecir.
 2. **1998 vs 1999**: el PDF tiene 1998 filas extraíbles; verifiquen contra el Excel original.
 3. **GPU**: el código corre en CPU sin problema (~5 min). sklearn clásico no usa GPU; para acelerar con GPU usen cuML o XGBoost con `tree_method='gpu_hist'`.
-4. **GitHub/Colab**: actualicen el placeholder `https://github.com/<usuario>/ctg-mini-proyecto` en el paper antes de entregar.
+4. **Repositorio**: https://github.com/jpzevallosl/ML_mini_proyecto

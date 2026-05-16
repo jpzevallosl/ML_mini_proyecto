@@ -16,13 +16,23 @@
 
 \title{Clasificaci\'on de Cardiotocograf\'ias Fetales:\\
 un Estudio Comparativo de Regresi\'on Log\'istica, SVM, \'Arboles de Decisi\'on y KNN\\
-bajo Validaci\'on Cruzada y Bootstrap}
+bajo Validaci\'on Cruzada y Bootstrap\\
+\thanks{Trabajo desarrollado para el curso de Aprendizaje de la M\'aquina, Maestr\'ia en Inteligencia Artificial, Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC), Lima, Per\'u.}}
 
-\author{\IEEEauthorblockN{Estudiante}
-\IEEEauthorblockA{\textit{Departamento de Ciencias de la Computaci\'on} \\
+\author{\IEEEauthorblockN{Josua Zevallos}
+\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
 \textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
-Lima, Per\'u \\
-correo@utec.edu.pe}
+Lima, Per\'u}
+\and
+\IEEEauthorblockN{Pedro Caycho}
+\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
+\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
+Lima, Per\'u}
+\and
+\IEEEauthorblockN{Marcos Morales}
+\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
+\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
+Lima, Per\'u}
 }
 
 \maketitle
@@ -38,7 +48,7 @@ cardiotocograf\'ia, clasificaci\'on multiclase, validaci\'on cruzada, bootstrap,
 \section{Introducci\'on}
 La cardiotocograf\'ia (CTG) registra simult\'aneamente la frecuencia card\'iaca fetal (FHR) y las contracciones uterinas y constituye la principal herramienta para evaluar el bienestar fetal durante el embarazo y el trabajo de parto. A pesar de su uso masivo, m\'ultiples estudios han documentado una alta variabilidad inter- e intra-observador en la interpretaci\'on cl\'inica de los trazos, lo que motiva la aplicaci\'on de t\'ecnicas de aprendizaje autom\'atico que provean diagn\'osticos asistidos m\'as reproducibles \cite{ayres2000sisporto}.
 
-El conjunto de datos \emph{Cardiotocography} originalmente descrito por Ayres-de-Campos \emph{et al.}~\cite{ayres2000sisporto} se ha convertido en una referencia est\'andar en la comunidad de aprendizaje autom\'atico m\'edico. Cada registro est\'a representado por 20 caracter\'isticas num\'ericas extra\'idas autom\'aticamente del trazo (l\'inea base, aceleraciones, variabilidad a corto y largo plazo, etc.) y una etiqueta cl\'inica de tres niveles: Normal, Sospechoso y Patol\'ogico. Esta etiquetaci\'on es \emph{intr\'insecamente desbalanceada}: la mayor\'ia de los embarazos transcurren sin complicaciones, por lo que cualquier modelo entrenado debe ser evaluado con m\'etricas robustas al desbalance.
+El conjunto de datos \emph{Cardiotocography} originalmente descrito por Ayres-de-Campos \emph{et al.}~\cite{ayres2000sisporto} se ha convertido en una referencia est\'andar en la comunidad de aprendizaje autom\'atico m\'edico. Cada registro est\'a representado por 21 caracter\'isticas num\'ericas extra\'idas autom\'aticamente del trazo (l\'inea base, aceleraciones, variabilidad a corto y largo plazo, etc.) y una etiqueta cl\'inica de tres niveles: Normal, Sospechoso y Patol\'ogico. Esta etiquetaci\'on es \emph{intr\'insecamente desbalanceada}: la mayor\'ia de los embarazos transcurren sin complicaciones, por lo que cualquier modelo entrenado debe ser evaluado con m\'etricas robustas al desbalance.
 
 El presente trabajo aborda exhaustivamente la pregunta: \emph{?`cu\'al de los cuatro modelos cl\'asicos --- Regresi\'on Log\'istica, SVM, \'Arboles de Decisi\'on y KNN--- ofrece el mejor compromiso entre precisi\'on y capacidad de generalizaci\'on para clasificar CTG fetales?} Para responderla:
 \begin{itemize}
@@ -47,7 +57,7 @@ El presente trabajo aborda exhaustivamente la pregunta: \emph{?`cu\'al de los cu
     \item Para cada mejor configuraci\'on se realiza una validaci\'on adicional mediante \emph{bootstrap} con 500 r\'eplicas, reportando el estimador .632 y un intervalo de confianza al 95\,\% basado en la distribuci\'on \emph{out-of-bag}.
     \item Se eval\'ua el modelo ganador en el conjunto de prueba reservado y se presenta la matriz de confusi\'on porcentual por clase.
 \end{itemize}
-La semilla \texttt{numpy.random.seed(42)}~\cite{numpy_seed} se utiliza en todos los procesos estoc\'asticos para garantizar reproducibilidad. El c\'odigo fuente est\'a disponible p\'ublicamente\footnote{Repositorio: \url{https://github.com/<usuario>/ctg-mini-proyecto}} en formato \texttt{Python}+\texttt{scikit-learn}.
+La semilla \texttt{numpy.random.seed(42)}~\cite{numpy_seed} se utiliza en todos los procesos estoc\'asticos para garantizar reproducibilidad. El c\'odigo fuente est\'a disponible p\'ublicamente\footnote{Repositorio: \url{https://github.com/jpzevallosl/ML_mini_proyecto}} en formato \texttt{Python}+\texttt{scikit-learn}.
 
 \section{Modelos}
 Esta secci\'on resume brevemente los cuatro modelos comparados, centr\'andose en los aspectos relevantes para clasificaci\'on multiclase.
@@ -78,9 +88,9 @@ M\'etodo \emph{lazy} que clasifica una muestra como la moda de las etiquetas de 
 
 \section{Experimentos}
 \subsection{Conjunto de datos y preprocesamiento}
-El conjunto contiene 1998 CTG con 20 caracter\'isticas num\'ericas (l\'inea base \texttt{LB}, aceleraciones \texttt{AC}, movimientos fetales \texttt{FM}, contracciones uterinas \texttt{UC}, desaceleraciones \texttt{DL/DS/DP}, variabilidad a corto/largo plazo \texttt{ASTV/MSTV/ALTV/MLTV}, ancho del histograma \texttt{Width}, m\'inimo, m\'aximo, modos, m\'edia, mediana, varianza y tendencia) y la etiqueta \texttt{CLASE}. No se encontraron valores faltantes.
+El conjunto contiene 1998 CTG con 21 caracter\'isticas num\'ericas\footnote{El enunciado del proyecto menciona un vector de 20 dimensiones; el archivo de datos provisto contiene en realidad 21 columnas predictoras m\'as la etiqueta. Se utilizaron las 21 caracter\'isticas disponibles sin descartar ninguna, por consistencia con los datos reales entregados.} (l\'inea base \texttt{LB}, aceleraciones \texttt{AC}, movimientos fetales \texttt{FM}, contracciones uterinas \texttt{UC}, desaceleraciones \texttt{DL/DS/DP}, variabilidad a corto/largo plazo \texttt{ASTV/MSTV/ALTV/MLTV}, ancho del histograma \texttt{Width}, m\'inimo, m\'aximo, modas, m\'edia, mediana, varianza y tendencia) y la etiqueta \texttt{CLASE}. No se encontraron valores faltantes.
 
-La distribuci\'on de clases es marcadamente desbalanceada (Fig.~\ref{fig:class}). Para preservar esta proporci\'on en cada partici\'on se utiliz\'o muestreo estratificado: 1698 registros (85\,\%) para entrenamiento/validaci\'on y 300 (15\,\%) reservados como conjunto de prueba final. Las 20 caracter\'isticas se estandarizaron a media cero y varianza uno para la Regresi\'on Log\'istica, SVM y KNN; para el \'Arbol de Decisi\'on se utilizaron las variables originales (los \'arboles son invariantes a transformaciones mon\'otonas).
+La distribuci\'on de clases es marcadamente desbalanceada (Fig.~\ref{fig:class}). Para preservar esta proporci\'on en cada partici\'on se utiliz\'o muestreo estratificado: 1698 registros (85\,\%) para entrenamiento/validaci\'on y 300 (15\,\%) reservados como conjunto de prueba final. Las 21 caracter\'isticas se estandarizaron a media cero y varianza uno para la Regresi\'on Log\'istica, SVM y KNN; para el \'Arbol de Decisi\'on se utilizaron las variables originales (los \'arboles son invariantes a transformaciones mon\'otonas).
 
 \begin{figure}[!t]
 \centering
@@ -92,7 +102,7 @@ La distribuci\'on de clases es marcadamente desbalanceada (Fig.~\ref{fig:class})
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\linewidth]{figures/correlation.pdf}
-\caption{Matriz de correlaci\'on de Pearson entre las 20 caracter\'isticas. Se observa correlaci\'on alta entre los estad\'isticos del histograma (Mode, Mean, Median).}
+\caption{Matriz de correlaci\'on de Pearson entre las 21 caracter\'isticas. Se observa correlaci\'on alta entre los estad\'isticos del histograma (Mode, Mean, Median).}
 \label{fig:corr}
 \end{figure}
 
