@@ -3,6 +3,7 @@
   "n_train": 1698,
   "n_test": 300,
   "n_features": 21,
+  "n_engineered_features": 79,
   "class_counts": {
     "1": 1555,
     "2": 280,
@@ -22,6 +23,7 @@
           "LogisticRegression(C=10.0, max_iter=2000, random_state=42)"
         ]
       ],
+      "transform_input": null,
       "verbose": false,
       "scaler": "StandardScaler()",
       "clf": "LogisticRegression(C=10.0, max_iter=2000, random_state=42)",
@@ -33,11 +35,44 @@
       "clf__dual": false,
       "clf__fit_intercept": true,
       "clf__intercept_scaling": 1,
-      "clf__l1_ratio": null,
+      "clf__l1_ratio": 0.0,
       "clf__max_iter": 2000,
-      "clf__multi_class": "auto",
       "clf__n_jobs": null,
-      "clf__penalty": "l2",
+      "clf__penalty": "deprecated",
+      "clf__random_state": 42,
+      "clf__solver": "lbfgs",
+      "clf__tol": 0.0001,
+      "clf__verbose": 0,
+      "clf__warm_start": false
+    },
+    "LogReg_FE": {
+      "memory": null,
+      "steps": [
+        [
+          "scaler",
+          "StandardScaler()"
+        ],
+        [
+          "clf",
+          "LogisticRegression(C=0.1, max_iter=2000, random_state=42)"
+        ]
+      ],
+      "transform_input": null,
+      "verbose": false,
+      "scaler": "StandardScaler()",
+      "clf": "LogisticRegression(C=0.1, max_iter=2000, random_state=42)",
+      "scaler__copy": true,
+      "scaler__with_mean": true,
+      "scaler__with_std": true,
+      "clf__C": 0.1,
+      "clf__class_weight": null,
+      "clf__dual": false,
+      "clf__fit_intercept": true,
+      "clf__intercept_scaling": 1,
+      "clf__l1_ratio": 0.0,
+      "clf__max_iter": 2000,
+      "clf__n_jobs": null,
+      "clf__penalty": "deprecated",
       "clf__random_state": 42,
       "clf__solver": "lbfgs",
       "clf__tol": 0.0001,
@@ -56,6 +91,7 @@
           "SVC(C=10.0, class_weight='balanced', gamma=0.1, random_state=42)"
         ]
       ],
+      "transform_input": null,
       "verbose": false,
       "scaler": "StandardScaler()",
       "clf": "SVC(C=10.0, class_weight='balanced', gamma=0.1, random_state=42)",
@@ -78,20 +114,81 @@
       "clf__tol": 0.001,
       "clf__verbose": false
     },
+    "SVM_FE": {
+      "memory": null,
+      "steps": [
+        [
+          "scaler",
+          "StandardScaler()"
+        ],
+        [
+          "clf",
+          "SVC(C=10.0, class_weight='balanced', random_state=42)"
+        ]
+      ],
+      "transform_input": null,
+      "verbose": false,
+      "scaler": "StandardScaler()",
+      "clf": "SVC(C=10.0, class_weight='balanced', random_state=42)",
+      "scaler__copy": true,
+      "scaler__with_mean": true,
+      "scaler__with_std": true,
+      "clf__C": 10.0,
+      "clf__break_ties": false,
+      "clf__cache_size": 200,
+      "clf__class_weight": "balanced",
+      "clf__coef0": 0.0,
+      "clf__decision_function_shape": "ovr",
+      "clf__degree": 3,
+      "clf__gamma": "scale",
+      "clf__kernel": "rbf",
+      "clf__max_iter": -1,
+      "clf__probability": false,
+      "clf__random_state": 42,
+      "clf__shrinking": true,
+      "clf__tol": 0.001,
+      "clf__verbose": false
+    },
     "DecisionTree": {
       "memory": null,
       "steps": [
         [
           "clf",
-          "DecisionTreeClassifier(min_samples_split=10, random_state=42)"
+          "DecisionTreeClassifier(max_depth=20, min_samples_split=10, random_state=42)"
         ]
       ],
+      "transform_input": null,
       "verbose": false,
-      "clf": "DecisionTreeClassifier(min_samples_split=10, random_state=42)",
+      "clf": "DecisionTreeClassifier(max_depth=20, min_samples_split=10, random_state=42)",
       "clf__ccp_alpha": 0.0,
       "clf__class_weight": null,
       "clf__criterion": "gini",
-      "clf__max_depth": null,
+      "clf__max_depth": 20,
+      "clf__max_features": null,
+      "clf__max_leaf_nodes": null,
+      "clf__min_impurity_decrease": 0.0,
+      "clf__min_samples_leaf": 1,
+      "clf__min_samples_split": 10,
+      "clf__min_weight_fraction_leaf": 0.0,
+      "clf__monotonic_cst": null,
+      "clf__random_state": 42,
+      "clf__splitter": "best"
+    },
+    "DecisionTree_FE": {
+      "memory": null,
+      "steps": [
+        [
+          "clf",
+          "DecisionTreeClassifier(max_depth=25, min_samples_split=10, random_state=42)"
+        ]
+      ],
+      "transform_input": null,
+      "verbose": false,
+      "clf": "DecisionTreeClassifier(max_depth=25, min_samples_split=10, random_state=42)",
+      "clf__ccp_alpha": 0.0,
+      "clf__class_weight": null,
+      "clf__criterion": "gini",
+      "clf__max_depth": 25,
       "clf__max_features": null,
       "clf__max_leaf_nodes": null,
       "clf__min_impurity_decrease": 0.0,
@@ -114,6 +211,35 @@
           "KNeighborsClassifier(metric='manhattan', n_neighbors=3, weights='distance')"
         ]
       ],
+      "transform_input": null,
+      "verbose": false,
+      "scaler": "StandardScaler()",
+      "clf": "KNeighborsClassifier(metric='manhattan', n_neighbors=3, weights='distance')",
+      "scaler__copy": true,
+      "scaler__with_mean": true,
+      "scaler__with_std": true,
+      "clf__algorithm": "auto",
+      "clf__leaf_size": 30,
+      "clf__metric": "manhattan",
+      "clf__metric_params": null,
+      "clf__n_jobs": null,
+      "clf__n_neighbors": 3,
+      "clf__p": 2,
+      "clf__weights": "distance"
+    },
+    "KNN_FE": {
+      "memory": null,
+      "steps": [
+        [
+          "scaler",
+          "StandardScaler()"
+        ],
+        [
+          "clf",
+          "KNeighborsClassifier(metric='manhattan', n_neighbors=3, weights='distance')"
+        ]
+      ],
+      "transform_input": null,
       "verbose": false,
       "scaler": "StandardScaler()",
       "clf": "KNeighborsClassifier(metric='manhattan', n_neighbors=3, weights='distance')",
@@ -185,6 +311,60 @@
         0.018806292292526172
       ]
     },
+    "LogReg_FE": {
+      "prec_1": [
+        0.936529256876797,
+        0.008457692013677982
+      ],
+      "prec_2": [
+        0.7037698412698413,
+        0.07009783322778268
+      ],
+      "prec_3": [
+        0.9006593406593406,
+        0.07164310789293749
+      ],
+      "rec_1": [
+        0.9591423670668954,
+        0.014155275945037063
+      ],
+      "rec_2": [
+        0.6555851063829788,
+        0.0723710563018946
+      ],
+      "rec_3": [
+        0.7775132275132275,
+        0.07172386540880651
+      ],
+      "f1_1": [
+        0.9476207282489459,
+        0.0076848941763167184
+      ],
+      "f1_2": [
+        0.674931244924427,
+        0.05140211450909881
+      ],
+      "f1_3": [
+        0.8308475512810489,
+        0.04793521910810003
+      ],
+      "prec_macro": [
+        0.8469861462686596,
+        0.03588291997453146
+      ],
+      "rec_macro": [
+        0.7974135669877005,
+        0.03434640442707412
+      ],
+      "f1_macro": [
+        0.8177998414848073,
+        0.034577427253179874
+      ],
+      "accuracy": [
+        0.9016675342703453,
+        0.01630235429478704
+      ]
+    },
     "SVM": {
       "prec_1": [
         0.9574286429924653,
@@ -237,6 +417,60 @@
       "accuracy": [
         0.9122644456012493,
         0.014970534635401043
+      ]
+    },
+    "SVM_FE": {
+      "prec_1": [
+        0.9737640751450595,
+        0.007971314239255673
+      ],
+      "prec_2": [
+        0.6487770054757153,
+        0.05439496898836375
+      ],
+      "prec_3": [
+        0.8559204524721766,
+        0.033873233069495835
+      ],
+      "rec_1": [
+        0.9220497427101201,
+        0.020302829438977647
+      ],
+      "rec_2": [
+        0.8401595744680852,
+        0.0527736246145458
+      ],
+      "rec_3": [
+        0.8423280423280424,
+        0.0475116366498143
+      ],
+      "f1_1": [
+        0.9470331918602746,
+        0.009655570981219865
+      ],
+      "f1_2": [
+        0.7306367081972265,
+        0.04451217866278595
+      ],
+      "f1_3": [
+        0.8477816919922182,
+        0.024047981016461155
+      ],
+      "prec_macro": [
+        0.8261538443643172,
+        0.025386697315626556
+      ],
+      "rec_macro": [
+        0.8681791198354158,
+        0.030532243107012292
+      ],
+      "f1_macro": [
+        0.8418171973499066,
+        0.024802032611409137
+      ],
+      "accuracy": [
+        0.9040256810688877,
+        0.016289647577294186
       ]
     },
     "DecisionTree": {
@@ -293,6 +527,60 @@
         0.011016954907449117
       ]
     },
+    "DecisionTree_FE": {
+      "prec_1": [
+        0.9400091903694499,
+        0.008365669613936201
+      ],
+      "prec_2": [
+        0.775068211068211,
+        0.07041670838297907
+      ],
+      "prec_3": [
+        0.9112433862433862,
+        0.034857446438091695
+      ],
+      "rec_1": [
+        0.959110920526015,
+        0.01719223944778888
+      ],
+      "rec_2": [
+        0.7018617021276596,
+        0.057364116125170034
+      ],
+      "rec_3": [
+        0.8708994708994708,
+        0.03559749667922274
+      ],
+      "f1_1": [
+        0.949352423765317,
+        0.008597256947796237
+      ],
+      "f1_2": [
+        0.7346023291849937,
+        0.05034045612104496
+      ],
+      "f1_3": [
+        0.8899004699004699,
+        0.02474679154703438
+      ],
+      "prec_macro": [
+        0.875440262560349,
+        0.03365726815367193
+      ],
+      "rec_macro": [
+        0.8439573645177152,
+        0.026630502096926464
+      ],
+      "f1_macro": [
+        0.8579517409502602,
+        0.02454126248438778
+      ],
+      "accuracy": [
+        0.9157869165365261,
+        0.014464179574349676
+      ]
+    },
     "KNN": {
       "prec_1": [
         0.9441885109514454,
@@ -346,48 +634,176 @@
         0.9169703279541904,
         0.011179077944341956
       ]
+    },
+    "KNN_FE": {
+      "prec_1": [
+        0.944142338737955,
+        0.007782111246339885
+      ],
+      "prec_2": [
+        0.7604127683462049,
+        0.04483981539432402
+      ],
+      "prec_3": [
+        0.8881794871794872,
+        0.07052579833952037
+      ],
+      "rec_1": [
+        0.9704831332189823,
+        0.006909136899184504
+      ],
+      "rec_2": [
+        0.6938829787234042,
+        0.06586861535059636
+      ],
+      "rec_3": [
+        0.7777777777777778,
+        0.06794874537461583
+      ],
+      "f1_1": [
+        0.9570771624838461,
+        0.001542775305875582
+      ],
+      "f1_2": [
+        0.7227744658549418,
+        0.03468268726964851
+      ],
+      "f1_3": [
+        0.8277151918661352,
+        0.057467376251156665
+      ],
+      "prec_macro": [
+        0.8642448647545489,
+        0.029748266340198583
+      ],
+      "rec_macro": [
+        0.8140479632400547,
+        0.03151506790826859
+      ],
+      "f1_macro": [
+        0.8358556067349744,
+        0.02944312971783322
+      ],
+      "accuracy": [
+        0.9157938573659552,
+        0.009141395480457408
+      ]
     }
   },
   "bootstrap": {
     "LogReg": {
-      "f1_in_mean": 0.8405141917494688,
-      "f1_oob_mean": 0.7901366860185792,
-      "f1_632": 0.8086756081275466,
+      "f1_in_mean": 0.8405179047134793,
+      "f1_oob_mean": 0.7901467604407066,
+      "f1_632": 0.808683341533087,
       "ci95_low": 0.7471424028054928,
       "ci95_high": 0.8296563881886104,
-      "err_in": 0.15948580825053116,
-      "err_oob": 0.20986331398142077,
-      "err_632": 0.1913243918724534
+      "err_in": 0.1594820952865207,
+      "err_oob": 0.20985323955929336,
+      "err_632": 0.19131665846691304
+    },
+    "LogReg_FE": {
+      "f1_in_mean": 0.8692319347374214,
+      "f1_oob_mean": 0.8110047263984481,
+      "f1_632": 0.8324323390671903,
+      "ci95_low": 0.7685947372370904,
+      "ci95_high": 0.8477756488701921,
+      "err_in": 0.13076806526257856,
+      "err_oob": 0.18899527360155188,
+      "err_632": 0.1675676609328097
     },
     "SVM": {
-      "f1_in_mean": 0.9787477155440686,
-      "f1_oob_mean": 0.8398906716122214,
-      "f1_632": 0.8909900637791411,
-      "ci95_low": 0.8020728170511963,
-      "ci95_high": 0.8764831047919401,
-      "err_in": 0.021252284455931414,
-      "err_oob": 0.16010932838777858,
-      "err_632": 0.10900993622085883
+      "f1_in_mean": 0.9786529693662914,
+      "f1_oob_mean": 0.8392876807348855,
+      "f1_632": 0.8905741069512428,
+      "ci95_low": 0.7962870951608807,
+      "ci95_high": 0.873716272542874,
+      "err_in": 0.021347030633708575,
+      "err_oob": 0.16071231926511453,
+      "err_632": 0.10942589304875713
+    },
+    "SVM_FE": {
+      "f1_in_mean": 0.9550635390084822,
+      "f1_oob_mean": 0.8399389819151452,
+      "f1_632": 0.8823048189254932,
+      "ci95_low": 0.8015491545301761,
+      "ci95_high": 0.8770286306719939,
+      "err_in": 0.044936460991517824,
+      "err_oob": 0.16006101808485484,
+      "err_632": 0.11769518107450681
     },
     "DecisionTree": {
-      "f1_in_mean": 0.9745458692846938,
-      "f1_oob_mean": 0.8515077462139321,
-      "f1_632": 0.8967857755039724,
-      "ci95_low": 0.8066835278257647,
-      "ci95_high": 0.8905212384136476,
-      "err_in": 0.025454130715306222,
-      "err_oob": 0.1484922537860679,
-      "err_632": 0.1032142244960276
+      "f1_in_mean": 0.9748243310736472,
+      "f1_oob_mean": 0.8532855664276233,
+      "f1_632": 0.8980118318173601,
+      "ci95_low": 0.8122309941852518,
+      "ci95_high": 0.8916232673348647,
+      "err_in": 0.025175668926352812,
+      "err_oob": 0.14671443357237668,
+      "err_632": 0.1019881681826399
+    },
+    "DecisionTree_FE": {
+      "f1_in_mean": 0.979944011950675,
+      "f1_oob_mean": 0.8437954364491739,
+      "f1_632": 0.8938981122337263,
+      "ci95_low": 0.7952832747773426,
+      "ci95_high": 0.881523697662863,
+      "err_in": 0.020055988049324958,
+      "err_oob": 0.15620456355082613,
+      "err_632": 0.10610188776627369
     },
     "KNN": {
-      "f1_in_mean": 0.9996130622544811,
-      "f1_oob_mean": 0.8191231428915999,
-      "f1_632": 0.8855434332171402,
-      "ci95_low": 0.7766602054004303,
-      "ci95_high": 0.8580144796436109,
-      "err_in": 0.0003869377455189005,
-      "err_oob": 0.18087685710840007,
-      "err_632": 0.1144565667828598
+      "f1_in_mean": 0.9995555959818981,
+      "f1_oob_mean": 0.8198090603598817,
+      "f1_632": 0.8859557854687837,
+      "ci95_low": 0.7804190253405632,
+      "ci95_high": 0.8568208752599021,
+      "err_in": 0.0004444040181018627,
+      "err_oob": 0.18019093964011834,
+      "err_632": 0.11404421453121628
+    },
+    "KNN_FE": {
+      "f1_in_mean": 0.9995537379747634,
+      "f1_oob_mean": 0.8171516487176913,
+      "f1_632": 0.8842756175642938,
+      "ci95_low": 0.7789825604049846,
+      "ci95_high": 0.8531660259311888,
+      "err_in": 0.00044626202523656566,
+      "err_oob": 0.1828483512823087,
+      "err_632": 0.11572438243570615
+    }
+  },
+  "test_metrics_per_model": {
+    "LogReg": {
+      "accuracy": 0.9,
+      "f1_macro": 0.8057388590137237
+    },
+    "LogReg_FE": {
+      "accuracy": 0.9033333333333333,
+      "f1_macro": 0.8081295353749219
+    },
+    "SVM": {
+      "accuracy": 0.9233333333333333,
+      "f1_macro": 0.8842701993077933
+    },
+    "SVM_FE": {
+      "accuracy": 0.9,
+      "f1_macro": 0.8277376730834177
+    },
+    "DecisionTree": {
+      "accuracy": 0.9233333333333333,
+      "f1_macro": 0.8777554978899635
+    },
+    "DecisionTree_FE": {
+      "accuracy": 0.9,
+      "f1_macro": 0.8284246454471279
+    },
+    "KNN": {
+      "accuracy": 0.9333333333333333,
+      "f1_macro": 0.8613892516009837
+    },
+    "KNN_FE": {
+      "accuracy": 0.9233333333333333,
+      "f1_macro": 0.8384510246512891
     }
   },
   "test_accuracy": 0.9233333333333333,

@@ -60,10 +60,109 @@ from sklearn.utils import resample
 warnings.filterwarnings('ignore')
 
 # ============================================================
-# Semilla (NumPy seed según se solicita en el enunciado)
+# Semilla 
 # ============================================================
 SEED = 42
 np.random.seed(SEED)
+
+
+def add_engineered_features(X):
+    """Crea variables derivadas de CTG a partir de columnas existentes."""
+    X = X.copy()
+    eps = 1e-6
+    stv_col = 'MSTV'
+    ltv_col = 'MLTV'
+
+    # 1. Baseline features
+    X['lb_normal_110_160'] = X['LB'].between(110, 160, inclusive='both').astype(int)
+    X['lb_low_100_109'] = X['LB'].between(100, 109, inclusive='both').astype(int)
+    X['lb_very_low_lt100'] = (X['LB'] < 100).astype(int)
+    X['lb_high_gt160'] = (X['LB'] > 160).astype(int)
+    X['lb_distance_from_normal'] = (
+        np.maximum(110 - X['LB'], 0) + np.maximum(X['LB'] - 160, 0)
+    )
+
+    # 2. Central tendency vs baseline
+    X['mean_minus_lb'] = X['Mean'] - X['LB']
+    X['median_minus_lb'] = X['Median'] - X['LB']
+    X['mode_minus_lb'] = X['Mode'] - X['LB']
+    X['abs_mean_minus_lb'] = np.abs(X['mean_minus_lb'])
+    X['abs_median_minus_lb'] = np.abs(X['median_minus_lb'])
+    X['abs_mode_minus_lb'] = np.abs(X['mode_minus_lb'])
+    X['mean_median_gap'] = X['Mean'] - X['Median']
+    X['mean_mode_gap'] = X['Mean'] - X['Mode']
+    X['median_mode_gap'] = X['Median'] - X['Mode']
+    X['central_tendency_spread'] = (
+        X[['Mean', 'Median', 'Mode']].max(axis=1)
+        - X[['Mean', 'Median', 'Mode']].min(axis=1)
+    )
+
+    # 3. Deceleration features. 
+    X['total_decelerations'] = X['DL'] + X['DS'] + X['DP']
+    X['severe_prolonged_decelerations'] = X['DS'] + X['DP']
+    X['deceleration_intensity'] = 1 * X['DL'] + 3 * X['DS'] + 4 * X['DP']
+    X['any_deceleration'] = (X['total_decelerations'] > 0).astype(int)
+    X['any_severe_or_prolonged'] = (
+        X['severe_prolonged_decelerations'] > 0
+    ).astype(int)
+    X['severe_decel_share'] = (
+        X['severe_prolonged_decelerations'] / (X['total_decelerations'] + eps)
+    )
+
+    # 4. Acceleration / reactivity features
+    X['reactivity_index'] = X['AC'] + X['FM']
+    X['accel_decel_balance'] = X['AC'] / (X['total_decelerations'] + eps)
+    X['net_reactivity'] = X['AC'] - X['total_decelerations']
+    X['fm_ac_ratio'] = X['FM'] / (X['AC'] + eps)
+
+    # 5. Contraction-adjusted features
+    X['decelerations_per_uc'] = X['total_decelerations'] / (X['UC'] + eps)
+    X['severe_decelerations_per_uc'] = (
+        X['severe_prolonged_decelerations'] / (X['UC'] + eps)
+    )
+    X['accelerations_per_uc'] = X['AC'] / (X['UC'] + eps)
+
+    # 6. Variability features
+    X['total_abnormal_variability'] = X['ASTV'] + X['ALTV']
+    X['short_long_abnormal_ratio'] = X['ASTV'] / (X['ALTV'] + eps)
+    X['short_long_mean_ratio'] = X[stv_col] / (X[ltv_col] + eps)
+    X['abnormal_variability_load'] = X['ASTV'] / (X[stv_col] + eps)
+    X['long_variability_load'] = X['ALTV'] / (X[ltv_col] + eps)
+
+    # 7. Stress interactions
+    X['decel_x_astv'] = X['total_decelerations'] * X['ASTV']
+    X['severe_decel_x_astv'] = X['severe_prolonged_decelerations'] * X['ASTV']
+    X['uc_x_decel'] = X['UC'] * X['total_decelerations']
+    X['uc_x_astv'] = X['UC'] * X['ASTV']
+    X['lb_distance_x_astv'] = X['lb_distance_from_normal'] * X['ASTV']
+    X['lb_distance_x_decel'] = (
+        X['lb_distance_from_normal'] * X['total_decelerations']
+    )
+
+    # 8. Histogram shape features
+    X['hist_range'] = X['Max'] - X['Min']
+    X['width_gap'] = X['Width'] - X['hist_range']
+    X['mean_position'] = (X['Mean'] - X['Min']) / (X['hist_range'] + eps)
+    X['median_position'] = (X['Median'] - X['Min']) / (X['hist_range'] + eps)
+    X['mode_position'] = (X['Mode'] - X['Min']) / (X['hist_range'] + eps)
+    X['right_tail'] = X['Max'] - X['Mean']
+    X['left_tail'] = X['Mean'] - X['Min']
+    X['tail_asymmetry'] = (
+        (X['right_tail'] - X['left_tail']) / (X['Width'] + eps)
+    )
+    X['peaks_density'] = X['Nmax'] / (X['Width'] + eps)
+    X['zeros_density'] = X['Nzeros'] / (X['Width'] + eps)
+
+    # 9. Log features para variables sesgadas / con muchos ceros
+    skewed_cols = [
+        'AC', 'FM', 'UC', 'DL', 'DS', 'DP',
+        'total_decelerations', 'deceleration_intensity',
+        'severe_prolonged_decelerations',
+    ]
+    for col in skewed_cols:
+        X[f'log1p_{col}'] = np.log1p(X[col])
+
+    return X
 
 # Rutas relativas a la ubicacion del script (portable)
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -85,13 +184,21 @@ df = pd.read_csv(DATA)
 print(f'Dataset: {df.shape[0]} registros, {df.shape[1]} columnas')
 print(f'Clases:\n{df["CLASE"].value_counts().sort_index()}')
 
-X = df.drop(columns=['CLASE']).values
+X_raw_df = df.drop(columns=['CLASE'])
+X_fe_df = add_engineered_features(X_raw_df)
+print(f'Features base: {X_raw_df.shape[1]} | Features con ingenieria: {X_fe_df.shape[1]}')
+
+X = X_raw_df.values
+X_fe = X_fe_df.values
 y = df['CLASE'].values
-feat_names = df.drop(columns=['CLASE']).columns.tolist()
+feat_names = X_raw_df.columns.tolist()
 
 # Split estratificado 85/15 (≈300 muestras de test interno)
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.15, stratify=y, random_state=SEED)
+X_train, X_test, X_fe_train, X_fe_test, y_train, y_test = train_test_split(
+    X, X_fe, y, test_size=0.15, stratify=y, random_state=SEED)
+model_train_data = {}
+model_test_data = {}
+model_full_data = {}
 print(f'\nTrain: {X_train.shape[0]}, Test: {X_test.shape[0]}')
 
 # ============================================================
@@ -143,14 +250,30 @@ pipelines = {
         ('clf', LogisticRegression(max_iter=2000, random_state=SEED,
                                    solver='lbfgs'))
     ]),
+    'LogReg_FE': Pipeline([
+        ('scaler', StandardScaler()),
+        ('clf', LogisticRegression(max_iter=2000, random_state=SEED,
+                                   solver='lbfgs'))
+    ]),
     'SVM': Pipeline([
+        ('scaler', StandardScaler()),
+        ('clf', SVC(random_state=SEED, probability=False))
+    ]),
+    'SVM_FE': Pipeline([
         ('scaler', StandardScaler()),
         ('clf', SVC(random_state=SEED, probability=False))
     ]),
     'DecisionTree': Pipeline([
         ('clf', DecisionTreeClassifier(random_state=SEED))
     ]),
+    'DecisionTree_FE': Pipeline([
+        ('clf', DecisionTreeClassifier(random_state=SEED))
+    ]),
     'KNN': Pipeline([
+        ('scaler', StandardScaler()),
+        ('clf', KNeighborsClassifier())
+    ]),
+    'KNN_FE': Pipeline([
         ('scaler', StandardScaler()),
         ('clf', KNeighborsClassifier())
     ]),
@@ -161,14 +284,29 @@ param_grids = {
         'clf__C': [0.01, 0.1, 1.0, 10.0],
         'clf__class_weight': [None, 'balanced'],
     },
+    'LogReg_FE': {
+        'clf__C': [0.01, 0.1, 1.0, 10.0],
+        'clf__class_weight': [None, 'balanced'],
+    },
     'SVM': {
         'clf__C': [0.1, 1.0, 10.0],
-        'clf__kernel': ['linear', 'rbf'],
+        'clf__kernel': ['linear', 'rbf', 'poly'],
+        'clf__gamma': ['scale', 0.1],
+        'clf__class_weight': ['balanced'],
+    },
+    'SVM_FE': {
+        'clf__C': [0.1, 1.0, 10.0],
+        'clf__kernel': ['linear', 'rbf', 'poly'],
         'clf__gamma': ['scale', 0.1],
         'clf__class_weight': ['balanced'],
     },
     'DecisionTree': {
-        'clf__max_depth': [None, 5, 10, 20],
+        'clf__max_depth': [3, 5, 10, 20, 25, 30, None],
+        'clf__min_samples_split': [2, 5, 10],
+        'clf__class_weight': [None, 'balanced'],
+    },
+    'DecisionTree_FE': {
+        'clf__max_depth': [3, 5, 10, 20, 25, 30, None],
         'clf__min_samples_split': [2, 5, 10],
         'clf__class_weight': [None, 'balanced'],
     },
@@ -177,7 +315,22 @@ param_grids = {
         'clf__weights': ['uniform', 'distance'],
         'clf__metric': ['euclidean', 'manhattan'],
     },
+    'KNN_FE': {
+        'clf__n_neighbors': [3, 5, 7, 11, 15],
+        'clf__weights': ['uniform', 'distance'],
+        'clf__metric': ['euclidean', 'manhattan'],
+    },
 }
+
+for name in pipelines:
+    if name.endswith('_FE'):
+        model_train_data[name] = X_fe_train
+        model_test_data[name] = X_fe_test
+        model_full_data[name] = X_fe
+    else:
+        model_train_data[name] = X_train
+        model_test_data[name] = X_test
+        model_full_data[name] = X
 
 # ============================================================
 # 4. K-FOLD CV + GRID SEARCH (selección de hiperparámetros)
@@ -193,10 +346,11 @@ best_estimators = {}
 for name in pipelines:
     print(f'\n--- {name} ---')
     t0 = time.time()
+    Xm_train = model_train_data[name]
     gs = GridSearchCV(pipelines[name], param_grids[name],
                       scoring='f1_macro', cv=cv, n_jobs=-1,
                       return_train_score=False)
-    gs.fit(X_train, y_train)
+    gs.fit(Xm_train, y_train)
     elapsed = time.time() - t0
     print(f'Tiempo: {elapsed:.1f}s | Combinaciones: {len(gs.cv_results_["mean_test_score"])}')
     print(f'Mejor F1-macro CV: {gs.best_score_:.4f}')
@@ -228,13 +382,14 @@ classes = [1, 2, 3]
 class_names = ['Normal', 'Sospechoso', 'Patologico']
 
 for name, est in best_estimators.items():
+    Xm_train = model_train_data[name]
     # Métricas CV manual para tener por clase
     per_fold = {f'{m}_{c}': [] for m in ['prec', 'rec', 'f1'] for c in classes}
     per_fold.update({'prec_macro': [], 'rec_macro': [], 'f1_macro': [],
                      'accuracy': []})
 
     for tr_idx, val_idx in cv.split(X_train, y_train):
-        Xt, Xv = X_train[tr_idx], X_train[val_idx]
+        Xt, Xv = Xm_train[tr_idx], Xm_train[val_idx]
         yt, yv = y_train[tr_idx], y_train[val_idx]
         est.fit(Xt, yt)
         yp = est.predict(Xv)
@@ -267,12 +422,13 @@ print('6. BOOTSTRAP .632 (500 réplicas)')
 print('=' * 70)
 
 N_BOOT = 500
-rng = np.random.default_rng(SEED)
 bootstrap_results = {}
 
 for name, est in best_estimators.items():
     print(f'\n{name}: bootstrap...', end='', flush=True)
     t0 = time.time()
+    rng = np.random.default_rng(SEED)
+    Xm_train = model_train_data[name]
     f1_in_list, f1_out_list = [], []
 
     for b in range(N_BOOT):
@@ -282,8 +438,8 @@ for name, est in best_estimators.items():
 
         if oob_mask.sum() < 5:  # por si acaso
             continue
-        Xb, yb = X_train[idx], y_train[idx]
-        Xo, yo = X_train[oob_mask], y_train[oob_mask]
+        Xb, yb = Xm_train[idx], y_train[idx]
+        Xo, yo = Xm_train[oob_mask], y_train[oob_mask]
         est.fit(Xb, yb)
         yp_in = est.predict(Xb)
         yp_out = est.predict(Xo)
@@ -316,14 +472,33 @@ print('\n' + '=' * 70)
 print('7. MEJOR MODELO Y MATRIZ DE CONFUSIÓN EN TEST')
 print('=' * 70)
 
+names_order = [
+    'LogReg', 'LogReg_FE',
+    'SVM', 'SVM_FE',
+    'DecisionTree', 'DecisionTree_FE',
+    'KNN', 'KNN_FE',
+]
+test_results = {}
+
+for name in names_order:
+    est = best_estimators[name]
+    est.fit(model_train_data[name], y_train)
+    yp_test = est.predict(model_test_data[name])
+    test_results[name] = {
+        'accuracy': float(accuracy_score(y_test, yp_test)),
+        'f1_macro': float(f1_score(y_test, yp_test, average='macro')),
+    }
+    print(f'{name}: test Accuracy={test_results[name]["accuracy"]:.4f} | '
+          f'F1-macro={test_results[name]["f1_macro"]:.4f}')
+
 # Criterio: F1-macro .632 más alto (combina training y OOB)
 best_name = max(bootstrap_results, key=lambda k: bootstrap_results[k]['f1_632'])
 print(f'\nMejor modelo (por F1.632): {best_name}')
 
 # Re-entrenar con todo el train, evaluar en test
 final_est = best_estimators[best_name]
-final_est.fit(X_train, y_train)
-y_pred = final_est.predict(X_test)
+final_est.fit(model_train_data[best_name], y_train)
+y_pred = final_est.predict(model_test_data[best_name])
 
 acc_test = accuracy_score(y_test, y_pred)
 f1m_test = f1_score(y_test, y_pred, average='macro')
@@ -350,8 +525,7 @@ plt.savefig(f'{FIGS}/confusion_matrix.pdf', bbox_inches='tight')
 plt.close()
 
 # Figura comparativa de modelos
-fig, ax = plt.subplots(figsize=(7, 4))
-names_order = ['LogReg', 'SVM', 'DecisionTree', 'KNN']
+fig, ax = plt.subplots(figsize=(10, 4.5))
 f1_cv = [cv_metrics[n]['f1_macro'][0] for n in names_order]
 f1_cv_std = [cv_metrics[n]['f1_macro'][1] for n in names_order]
 f1_boot = [bootstrap_results[n]['f1_632'] for n in names_order]
@@ -364,6 +538,7 @@ ax.bar(x, f1_boot, w, label='Bootstrap .632', color='#fdae61')
 ax.bar(x + w, f1_oob, w, label='Bootstrap OOB', color='#d7191c')
 ax.set_xticks(x)
 ax.set_xticklabels(names_order)
+plt.setp(ax.get_xticklabels(), rotation=30, ha='right')
 ax.set_ylabel('F1-macro')
 ax.set_title('Comparación de modelos: F1-macro por método de validación')
 ax.legend(loc='lower right', fontsize=8)
@@ -398,6 +573,8 @@ for name in names_order:
         'Accuracy_CV': m['accuracy'][0],
         'Precision_macro_CV': m['prec_macro'][0],
         'Recall_macro_CV': m['rec_macro'][0],
+        'Accuracy_Test': test_results[name]['accuracy'],
+        'F1_macro_Test': test_results[name]['f1_macro'],
     }
     for c, cn in zip(classes, class_names):
         row[f'Precision_{cn}'] = m[f'prec_{c}'][0]
@@ -419,11 +596,13 @@ summary = {
     'n_train': int(len(X_train)),
     'n_test': int(len(X_test)),
     'n_features': int(X_train.shape[1]),
+    'n_engineered_features': int(X_fe_train.shape[1]),
     'class_counts': {int(k): int(v) for k, v in df['CLASE'].value_counts().items()},
     'best_model': best_name,
     'best_params_per_model': {n: best_estimators[n].get_params() for n in names_order},
     'cv_metrics': cv_metrics,
     'bootstrap': bootstrap_results,
+    'test_metrics_per_model': test_results,
     'test_accuracy': float(acc_test),
     'test_f1_macro': float(f1m_test),
     'confusion_matrix_counts': cm.tolist(),
@@ -467,8 +646,8 @@ if os.path.exists(TEST_FILE):
 
     # Entrenar el mejor modelo con TODOS los 1998 registros
     final_full = best_estimators[best_name]
-    final_full.fit(X, y)  # X, y son los 1998 completos
-    X_ext = df_ext.values
+    final_full.fit(model_full_data[best_name], y)
+    X_ext = add_engineered_features(df_ext).values if best_name.endswith('_FE') else df_ext.values
     y_ext_pred = final_full.predict(X_ext)
 
     # Distribución de predicciones

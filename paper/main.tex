@@ -19,26 +19,16 @@ un Estudio Comparativo de Regresi\'on Log\'istica, SVM, \'Arboles de Decisi\'on 
 bajo Validaci\'on Cruzada y Bootstrap\\
 \thanks{Trabajo desarrollado para el curso de Aprendizaje de la M\'aquina, Maestr\'ia en Inteligencia Artificial, Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC), Lima, Per\'u.}}
 
-\author{\IEEEauthorblockN{Josua Zevallos}
-\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
-\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
-Lima, Per\'u}
-\and
-\IEEEauthorblockN{Pedro Caycho}
-\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
-\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
-Lima, Per\'u}
-\and
-\IEEEauthorblockN{Marco Morales}
-\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
-\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
-Lima, Per\'u}
+\author{\IEEEauthorblockN{\small Josua Zevallos \qquad Pedro Caycho \qquad Marco Morales}
+\IEEEauthorblockA{\footnotesize\textit{Maestr\'ia en Inteligencia Artificial}\\
+\footnotesize\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
+\footnotesize Lima, Per\'u}
 }
 
 \maketitle
 
 \begin{abstract}
-La cardiotocograf\'ia (CTG) es la prueba m\'as utilizada para monitorear el bienestar fetal, pero su interpretaci\'on est\'a sujeta a variabilidad inter-observador. En este trabajo se compara el desempe\~no de cuatro algoritmos cl\'asicos de aprendizaje supervisado --- Regresi\'on Log\'istica, M\'aquinas de Vectores de Soporte (SVM), \'Arboles de Decisi\'on y K-Vecinos M\'as Cercanos (KNN)--- sobre un conjunto de 1998 CTG etiquetadas como Normal, Sospechosa o Patol\'ogica. Se utiliza validaci\'on cruzada estratificada de 5 pliegues para la selecci\'on de hiperpar\'ametros y bootstrap con 500 r\'eplicas para estimar el error de generalizaci\'on mediante el estimador .632. Como el conjunto presenta un fuerte desbalance (77.8\,\%, 14.0\,\% y 8.2\,\% por clase), todos los resultados se reportan en t\'erminos de Precisi\'on, \emph{Recall} y F1 macro-promediados, evitando el sesgo del \emph{accuracy}. El \'Arbol de Decisi\'on con \texttt{min\_samples\_split}=10 obtiene el mejor desempe\~no (F1$_{.632}$=0.897, F1-macro=0.878 en el conjunto de prueba reservado, \emph{accuracy}=92.33\,\%), superando consistentemente a SVM-RBF, KNN y Regresi\'on Log\'istica. Se incluye la matriz de confusi\'on porcentual sobre el conjunto de prueba y se discute por qu\'e la clase \emph{Sospechoso} concentra la mayor parte de los errores.
+La cardiotocograf\'ia (CTG) es la prueba m\'as utilizada para monitorear el bienestar fetal, pero su interpretaci\'on est\'a sujeta a variabilidad inter-observador. En este trabajo se compara el desempe\~no de cuatro algoritmos cl\'asicos de aprendizaje supervisado --- Regresi\'on Log\'istica, M\'aquinas de Vectores de Soporte (SVM), \'Arboles de Decisi\'on y K-Vecinos M\'as Cercanos (KNN)--- sobre un conjunto de 1998 CTG etiquetadas como Normal, Sospechosa o Patol\'ogica. Se utiliza validaci\'on cruzada estratificada de 5 pliegues para la selecci\'on de hiperpar\'ametros y bootstrap con 500 r\'eplicas para estimar el error de generalizaci\'on mediante el estimador .632. Adem\'as, se eval\'ua una ablaci\'on de ingenier\'ia de variables que expande las 21 caracter\'isticas originales a 79 variables cl\'inicamente motivadas. Como el conjunto presenta un fuerte desbalance (77.8\,\%, 14.0\,\% y 8.2\,\% por clase), todos los resultados se reportan en t\'erminos de Precisi\'on, \emph{Recall} y F1 macro-promediados. El \'Arbol de Decisi\'on con \texttt{max\_depth}=20 y \texttt{min\_samples\_split}=10 obtiene el mejor desempe\~no (F1$_{.632}$=0.898, F1-macro=0.878 en el conjunto de prueba reservado, \emph{accuracy}=92.33\,\%). La ingenier\'ia de variables beneficia principalmente a la Regresi\'on Log\'istica (F1$_{.632}$ de 0.809 a 0.832), pero no supera al mejor modelo base.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -54,6 +44,7 @@ El presente trabajo aborda exhaustivamente la pregunta: \emph{?`cu\'al de los cu
 \begin{itemize}
     \item Se preprocesan 1998 CTG etiquetadas, se reserva el 15\,\% para prueba final mediante muestreo estratificado y se aplica escalado est\'andar a los modelos sensibles a la escala.
     \item Se buscan hiperpar\'ametros con \texttt{GridSearchCV} sobre validaci\'on cruzada estratificada de 5 pliegues, optimizando F1 macro-promediado.
+    \item Se construye una versi\'on con variables derivadas para cada modelo, como ablaci\'on de ingenier\'ia de variables.
     \item Para cada mejor configuraci\'on se realiza una validaci\'on adicional mediante \emph{bootstrap} con 500 r\'eplicas, reportando el estimador .632 y un intervalo de confianza al 95\,\% basado en la distribuci\'on \emph{out-of-bag}.
     \item Se eval\'ua el modelo ganador en el conjunto de prueba reservado y se presenta la matriz de confusi\'on porcentual por clase.
 \end{itemize}
@@ -90,7 +81,7 @@ M\'etodo \emph{lazy} que clasifica una muestra como la moda de las etiquetas de 
 \subsection{Conjunto de datos y preprocesamiento}
 El conjunto contiene 1998 CTG con 21 caracter\'isticas num\'ericas\footnote{El enunciado del proyecto menciona un vector de 20 dimensiones; el archivo de datos provisto contiene en realidad 21 columnas predictoras m\'as la etiqueta. Se utilizaron las 21 caracter\'isticas disponibles sin descartar ninguna, por consistencia con los datos reales entregados.} (l\'inea base \texttt{LB}, aceleraciones \texttt{AC}, movimientos fetales \texttt{FM}, contracciones uterinas \texttt{UC}, desaceleraciones \texttt{DL/DS/DP}, variabilidad a corto/largo plazo \texttt{ASTV/MSTV/ALTV/MLTV}, ancho del histograma \texttt{Width}, m\'inimo, m\'aximo, modas, m\'edia, mediana, varianza y tendencia) y la etiqueta \texttt{CLASE}. No se encontraron valores faltantes.
 
-La distribuci\'on de clases es marcadamente desbalanceada (Fig.~\ref{fig:class}). Para preservar esta proporci\'on en cada partici\'on se utiliz\'o muestreo estratificado: 1698 registros (85\,\%) para entrenamiento/validaci\'on y 300 (15\,\%) reservados como conjunto de prueba final. Las 21 caracter\'isticas se estandarizaron a media cero y varianza uno para la Regresi\'on Log\'istica, SVM y KNN; para el \'Arbol de Decisi\'on se utilizaron las variables originales (los \'arboles son invariantes a transformaciones mon\'otonas).
+La distribuci\'on de clases es marcadamente desbalanceada (Fig.~\ref{fig:class}). Para preservar esta proporci\'on en cada partici\'on se utiliz\'o muestreo estratificado: 1698 registros (85\,\%) para entrenamiento/validaci\'on y 300 (15\,\%) reservados como conjunto de prueba final. Las 21 caracter\'isticas se estandarizaron a media cero y varianza uno para la Regresi\'on Log\'istica, SVM y KNN; para el \'Arbol de Decisi\'on se utilizaron las variables originales (los \'arboles son invariantes a transformaciones mon\'otonas). Como experimento adicional se construy\'o una matriz enriquecida de 79 variables: indicadores de rango normal de \texttt{LB}, distancias respecto a la normalidad, diferencias entre \texttt{Mean}, \texttt{Median}, \texttt{Mode} y \texttt{LB}, agregados de desaceleraciones, razones ajustadas por contracciones, cargas de variabilidad e indicadores de forma del histograma. La columna \texttt{DR} no estaba disponible en el archivo, por lo que las desaceleraciones se definieron con \texttt{DL}, \texttt{DS} y \texttt{DP}.
 
 \begin{figure}[!t]
 \centering
@@ -109,7 +100,7 @@ La distribuci\'on de clases es marcadamente desbalanceada (Fig.~\ref{fig:class})
 La Fig.~\ref{fig:corr} muestra que existen bloques de variables fuertemente correlacionadas, en particular entre \texttt{Mode}, \texttt{Mean} y \texttt{Median}, y entre los descriptores de variabilidad. Esto sugiere que un modelo con regularizaci\'on o capacidad de selecci\'on impl\'icita de variables (\'arboles, SVM con $\ell_2$) podr\'ia tener ventaja sobre KNN, que es sensible a variables redundantes.
 
 \subsection{Protocolo de validaci\'on}
-La selecci\'on de hiperpar\'ametros se realiz\'o con \texttt{GridSearchCV} sobre validaci\'on cruzada estratificada de 5 pliegues. La m\'etrica de optimizaci\'on fue F1 macro-promediado para penalizar igualmente errores en cada clase a pesar del desbalance. La Tabla~\ref{tab:grids} resume los \emph{grids} explorados.
+La selecci\'on de hiperpar\'ametros se realiz\'o con \texttt{GridSearchCV} sobre validaci\'on cruzada estratificada de 5 pliegues. La m\'etrica de optimizaci\'on fue F1 macro-promediado para penalizar igualmente errores en cada clase a pesar del desbalance. La Tabla~\ref{tab:grids} resume los \emph{grids} explorados, aplicados tanto a los modelos base como a sus variantes con variables derivadas (sufijo \texttt{\_FE}).
 
 \begin{table}[!t]
 \caption{Espacios de b\'usqueda para cada modelo}
@@ -121,8 +112,8 @@ La selecci\'on de hiperpar\'ametros se realiz\'o con \texttt{GridSearchCV} sobre
 \textbf{Modelo} & \textbf{Hiperpar\'ametros explorados} \\
 \midrule
 LogReg & $C\in\{0.01,0.1,1,10\}$; \texttt{class\_weight}$\in\{\text{None},\text{balanced}\}$ \\
-SVM    & $C\in\{0.1,1,10\}$; \texttt{kernel}$\in\{\text{lin},\text{RBF}\}$; $\gamma\in\{\text{scale},0.1\}$; \texttt{class\_weight}=balanced \\
-\'Arbol & \texttt{max\_depth}$\in\{\text{None},5,10,20\}$; \texttt{min\_samples\_split}$\in\{2,5,10\}$; \texttt{class\_weight}$\in\{\text{None},\text{balanced}\}$ \\
+SVM    & $C\in\{0.1,1,10\}$; \texttt{kernel}$\in\{\text{lin},\text{RBF},\text{poly}\}$; $\gamma\in\{\text{scale},0.1\}$; \texttt{class\_weight}=balanced \\
+\'Arbol & \texttt{max\_depth}$\in\{3,5,10,20,25,30,\text{None}\}$; \texttt{min\_samples\_split}$\in\{2,5,10\}$; \texttt{class\_weight}$\in\{\text{None},\text{balanced}\}$ \\
 KNN    & $k\in\{3,5,7,11,15\}$; \texttt{weights}$\in\{\text{uniform},\text{distance}\}$; \texttt{metric}$\in\{\text{Euclid},\text{Manh}\}$ \\
 \bottomrule
 \end{tabular}
@@ -135,7 +126,7 @@ Una vez seleccionados los mejores hiperpar\'ametros, se realiz\'o un segundo pro
 Esta combinaci\'on mitiga el sesgo optimista del error \emph{in-bag} y el sesgo pesimista de la OOB. Adicionalmente se construy\'o un intervalo de confianza al 95\,\% mediante los percentiles 2.5 y 97.5 de la distribuci\'on de F1-macro OOB.
 
 \subsection{Resultados de la b\'usqueda de hiperpar\'ametros}
-La Tabla~\ref{tab:topcv} resume las dos mejores configuraciones por modelo encontradas en la validaci\'on cruzada (la lista completa, con las 64 combinaciones evaluadas, est\'a en el repositorio como \texttt{grid\_search\_full.csv}).
+La Tabla~\ref{tab:topcv} resume las dos mejores configuraciones por modelo base encontradas en la validaci\'on cruzada. La lista completa, con 174 combinaciones evaluadas incluyendo las variantes \texttt{\_FE}, est\'a en el repositorio como \texttt{grid\_search\_full.csv}.
 
 \begin{table}[!t]
 \caption{Top-2 hiperpar\'ametros por modelo (F1-macro en CV de 5 pliegues, $\pm$ desviaci\'on est\'andar)}
@@ -156,8 +147,8 @@ La Tabla~\ref{tab:topcv} resume las dos mejores configuraciones por modelo encon
  & $C=10$, RBF, $\gamma$=scale, balanced      & $0.838 \pm 0.025$ \\
 \midrule
 \multirow{2}{*}{\'Arbol}
- & \texttt{min\_split}=10, sin l\'imite       & $\mathbf{0.882 \pm 0.025}$ \\
- & \texttt{min\_split}=5, sin l\'imite        & $0.872 \pm 0.031$ \\
+ & \texttt{max\_depth}=20, \texttt{min\_split}=10       & $\mathbf{0.882 \pm 0.025}$ \\
+ & \texttt{max\_depth}=25, \texttt{min\_split}=10       & $0.882 \pm 0.025$ \\
 \midrule
 \multirow{2}{*}{KNN}
  & $k=3$, distancia, Manhattan                & $\mathbf{0.838 \pm 0.023}$ \\
@@ -182,14 +173,37 @@ La Tabla~\ref{tab:boot} muestra los estimadores .632, los promedios \emph{in-bag
 \textbf{Modelo} & \textbf{F1$_\text{in}$} & \textbf{F1$_\text{OOB}$} & \textbf{F1$_{.632}$} & \textbf{IC 95\,\% (OOB)} \\
 \midrule
 LogReg       & 0.840 & 0.790 & 0.809 & [0.747, 0.830] \\
-SVM          & 0.978 & 0.840 & 0.891 & [0.802, 0.877] \\
-\'Arbol      & 1.000 & 0.852 & \textbf{0.897} & [0.807, 0.891] \\
-KNN          & 1.000 & 0.819 & 0.886 & [0.777, 0.858] \\
+SVM          & 0.979 & 0.839 & 0.891 & [0.796, 0.874] \\
+\'Arbol      & 1.000 & 0.853 & \textbf{0.898} & [0.812, 0.892] \\
+KNN          & 1.000 & 0.820 & 0.886 & [0.780, 0.857] \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-El estimador .632 sit\'ua al \'Arbol de Decisi\'on en primer lugar (F1$_{.632}=0.897$), seguido muy de cerca por SVM (0.891) y KNN (0.886). La Regresi\'on Log\'istica queda claramente por debajo (0.809), reflejando su limitaci\'on para capturar las fronteras de decisi\'on no lineales entre clases. Es notable que SVM, KNN y \'Arbol exhiben F1 \emph{in-bag} cercanos a uno, indicando alta capacidad de ajuste; sin embargo la brecha con el error OOB no es excesiva, indicando que el sobreajuste est\'a controlado por los hiperpar\'ametros seleccionados.
+El estimador .632 sit\'ua al \'Arbol de Decisi\'on en primer lugar (F1$_{.632}=0.898$), seguido muy de cerca por SVM (0.891) y KNN (0.886). La Regresi\'on Log\'istica queda claramente por debajo (0.809), reflejando su limitaci\'on para capturar las fronteras de decisi\'on no lineales entre clases. En SVM, el kernel RBF super\'o al polinomial: la mejor configuraci\'on \texttt{poly} alcanz\'o F1-macro CV de 0.837, por debajo del RBF ganador (0.844). Es notable que SVM, KNN y \'Arbol exhiben F1 \emph{in-bag} cercanos a uno, indicando alta capacidad de ajuste; sin embargo la brecha con el error OOB no es excesiva, indicando que el sobreajuste est\'a controlado por los hiperpar\'ametros seleccionados.
+
+\subsection{Ablaci\'on de ingenier\'ia de variables}
+Para evaluar si las variables derivadas agregan informaci\'on \'util, se entren\'o cada modelo sobre las 21 variables originales y sobre la matriz enriquecida de 79 variables. La Tabla~\ref{tab:ablation} reporta el cambio en F1-macro.
+
+\begin{table}[!t]
+\caption{Ablaci\'on de variables derivadas: diferencia FE - base}
+\label{tab:ablation}
+\centering
+\renewcommand{\arraystretch}{1.12}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+\textbf{Modelo} & \textbf{$\Delta$ CV} & \textbf{$\Delta$ F1$_{.632}$} & \textbf{$\Delta$ test} \\
+\midrule
+LogReg       & +0.029 & +0.024 & +0.002 \\
+SVM          & -0.002 & -0.008 & -0.057 \\
+\'Arbol      & -0.024 & -0.004 & -0.049 \\
+KNN          & -0.002 & -0.002 & -0.023 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La ingenier\'ia de variables beneficia principalmente a la Regresi\'on Log\'istica, elevando su F1$_{.632}$ de 0.809 a 0.832. Esto es coherente con su naturaleza lineal: interacciones como diferencias entre tendencia central y l\'inea base, razones de variabilidad y cargas de desaceleraci\'on vuelven expl\'icitas fronteras que el modelo no puede construir por s\'i solo. En cambio, SVM-RBF, KNN y \'Arbol no mejoran de forma consistente; para el \'Arbol, las variables adicionales incluso reducen el F1 en validaci\'on cruzada de 0.882 a 0.858, probablemente por redundancia y mayor varianza en las particiones.
 
 \subsection{M\'etricas por clase}
 Dada la naturaleza desbalanceada del problema, es indispensable examinar las m\'etricas por clase. La Tabla~\ref{tab:perclass} reporta Precisi\'on, \emph{Recall} y F1 promedio (sobre los 5 pliegues de CV) para cada clase y modelo.
@@ -227,17 +241,17 @@ Dada la naturaleza desbalanceada del problema, es indispensable examinar las m\'
 \end{tabular}
 \end{table}
 
-La conclusi\'on es robusta: \emph{en todos los modelos, la clase intermedia} (\textbf{Sospechoso}) \emph{concentra los peores resultados}. Esto es esperable cl\'inicamente: el solapamiento entre Sospechoso y los extremos (Normal y Patol\'ogico) es inherente a la propia definici\'on del criterio diagn\'ostico, que utiliza \emph{Sospechoso} como una categor\'ia residual. La Fig.~\ref{fig:compare} resume gr\'aficamente el F1-macro por m\'etodo de validaci\'on.
+La conclusi\'on es robusta: \emph{en todos los modelos base, la clase intermedia} (\textbf{Sospechoso}) \emph{concentra los peores resultados}. Esto es esperable cl\'inicamente: el solapamiento entre Sospechoso y los extremos (Normal y Patol\'ogico) es inherente a la propia definici\'on del criterio diagn\'ostico, que utiliza \emph{Sospechoso} como una categor\'ia residual. La Fig.~\ref{fig:compare} resume gr\'aficamente el F1-macro por m\'etodo de validaci\'on para modelos base y variantes con variables derivadas.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\linewidth]{figures/model_comparison.pdf}
-\caption{F1-macro por modelo bajo distintos esquemas de evaluaci\'on. Las barras de error en CV representan $\pm 1$ desviaci\'on est\'andar entre pliegues.}
+\caption{F1-macro por modelo bajo distintos esquemas de evaluaci\'on. El sufijo \texttt{\_FE} indica uso de variables derivadas. Las barras de error en CV representan $\pm 1$ desviaci\'on est\'andar entre pliegues.}
 \label{fig:compare}
 \end{figure}
 
 \subsection{Evaluaci\'on final en el conjunto de prueba}
-Siguiendo el criterio del estimador .632, el modelo elegido es el \textbf{\'Arbol de Decisi\'on} (\texttt{min\_samples\_split}=10, sin l\'imite de profundidad). Reentrenado sobre la totalidad del conjunto de entrenamiento (1698 registros) y evaluado sobre los 300 registros reservados, obtiene:
+Siguiendo el criterio del estimador .632, el modelo elegido es el \textbf{\'Arbol de Decisi\'on} (\texttt{max\_depth}=20, \texttt{min\_samples\_split}=10). Reentrenado sobre la totalidad del conjunto de entrenamiento (1698 registros) y evaluado sobre los 300 registros reservados, obtiene:
 
 \begin{itemize}
     \item \textbf{Accuracy} = 92.33\,\%.
@@ -258,11 +272,12 @@ La matriz de confusi\'on porcentual se presenta en la Fig.~\ref{fig:cm}. Los aci
 Finalmente, el \'Arbol de Decisi\'on fue reentrenado sobre la totalidad de los 1998 registros etiquetados y aplicado a los 127 registros del conjunto de test externo (pesta\~na~2 del archivo provisto), que no contiene etiquetas de clase. La distribuci\'on de las predicciones resultante fue: 99 registros clasificados como Normal (78.0\,\%), 14 como Sospechoso (11.0\,\%) y 14 como Patol\'ogico (11.0\,\%). Esta proporci\'on es coherente con la distribuci\'on observada en los datos de entrenamiento (77.8\,\%, 14.0\,\%, 8.2\,\%), lo cual es un indicador favorable de que el modelo no est\'a produciendo predicciones sesgadas. Las predicciones individuales se encuentran en el archivo \texttt{predicciones\_test\_127.csv} del repositorio.
 
 \section{Conclusiones}
-Se compararon cuatro algoritmos cl\'asicos de clasificaci\'on sobre 1998 cardiotocograf\'ias fetales, utilizando un protocolo robusto basado en validaci\'on cruzada estratificada de 5 pliegues seguida de \emph{bootstrap} con 500 r\'eplicas. Las conclusiones principales son:
+Se compararon cuatro algoritmos cl\'asicos de clasificaci\'on sobre 1998 cardiotocograf\'ias fetales, utilizando un protocolo robusto basado en validaci\'on cruzada estratificada de 5 pliegues seguida de \emph{bootstrap} con 500 r\'eplicas. Adem\'as, se evalu\'o una ablaci\'on de ingenier\'ia de variables con 79 predictores. Las conclusiones principales son:
 
 \begin{enumerate}
-    \item El \textbf{\'Arbol de Decisi\'on} fue el mejor modelo, con F1$_{.632}=0.897$ y F1-macro de 0.878 sobre el conjunto de prueba reservado. Su \emph{accuracy} del 92.33\,\% supera el \emph{baseline} trivial (predecir siempre Normal) del 77.8\,\% por casi 15 puntos.
+    \item El \textbf{\'Arbol de Decisi\'on} fue el mejor modelo, con F1$_{.632}=0.898$ y F1-macro de 0.878 sobre el conjunto de prueba reservado. Su \emph{accuracy} del 92.33\,\% supera el \emph{baseline} trivial (predecir siempre Normal) del 77.8\,\% por casi 15 puntos.
     \item SVM-RBF y KNN obtuvieron desempe\~nos competitivos (F1$_{.632}=0.891$ y $0.886$ respectivamente), confirmando que estructuras locales y no lineales son centrales para este problema. La Regresi\'on Log\'istica, modelo lineal, qued\'o claramente rezagada (F1$_{.632}=0.809$).
+    \item La ingenier\'ia de variables fue m\'as \'util para la Regresi\'on Log\'istica, aumentando su F1$_{.632}$ a 0.832. En modelos no lineales no aport\'o mejoras consistentes, lo que sugiere que estos ya capturan buena parte de las interacciones presentes en las variables originales.
     \item En todos los modelos, la clase \emph{Sospechoso} concentr\'o los errores. Esto es consistente con su rol cl\'inico como categor\'ia intermedia y sugiere que t\'ecnicas focalizadas en frontera (\emph{ensembles}, \emph{cost-sensitive}, o reformulaci\'on como dos problemas binarios Normal-vs-Anormal seguidos por Sospechoso-vs-Patol\'ogico) podr\'ian aportar mejoras significativas.
     \item Reportar exclusivamente \emph{accuracy} hubiera sido enga\~noso: en este dataset un clasificador trivial supera el 77\,\%. Las m\'etricas macro-promediadas por clase, combinadas con la matriz de confusi\'on, son indispensables.
 \end{enumerate}
