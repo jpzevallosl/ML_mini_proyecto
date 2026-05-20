@@ -19,20 +19,10 @@ un Estudio Comparativo de Regresi\'on Log\'istica, SVM, \'Arboles de Decisi\'on 
 bajo Validaci\'on Cruzada y Bootstrap\\
 \thanks{Trabajo desarrollado para el curso de Aprendizaje de la M\'aquina, Maestr\'ia en Inteligencia Artificial, Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC), Lima, Per\'u.}}
 
-\author{\IEEEauthorblockN{Josua Zevallos}
-\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
-\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
-Lima, Per\'u}
-\and
-\IEEEauthorblockN{Pedro Caycho}
-\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
-\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
-Lima, Per\'u}
-\and
-\IEEEauthorblockN{Marco Morales}
-\IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
-\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
-Lima, Per\'u}
+\author{\IEEEauthorblockN{\small Josua Zevallos \qquad Pedro Caycho \qquad Marco Morales}
+\IEEEauthorblockA{\footnotesize\textit{Maestr\'ia en Inteligencia Artificial}\\
+\footnotesize\textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
+\footnotesize Lima, Per\'u}
 }
 
 \maketitle
@@ -122,7 +112,7 @@ La selecci\'on de hiperpar\'ametros se realiz\'o con \texttt{GridSearchCV} sobre
 \textbf{Modelo} & \textbf{Hiperpar\'ametros explorados} \\
 \midrule
 LogReg & $C\in\{0.01,0.1,1,10\}$; \texttt{class\_weight}$\in\{\text{None},\text{balanced}\}$ \\
-SVM    & $C\in\{0.1,1,10\}$; \texttt{kernel}$\in\{\text{lin},\text{RBF}\}$; $\gamma\in\{\text{scale},0.1\}$; \texttt{class\_weight}=balanced \\
+SVM    & $C\in\{0.1,1,10\}$; \texttt{kernel}$\in\{\text{lin},\text{RBF},\text{poly}\}$; $\gamma\in\{\text{scale},0.1\}$; \texttt{class\_weight}=balanced \\
 \'Arbol & \texttt{max\_depth}$\in\{3,5,10,20,25,30,\text{None}\}$; \texttt{min\_samples\_split}$\in\{2,5,10\}$; \texttt{class\_weight}$\in\{\text{None},\text{balanced}\}$ \\
 KNN    & $k\in\{3,5,7,11,15\}$; \texttt{weights}$\in\{\text{uniform},\text{distance}\}$; \texttt{metric}$\in\{\text{Euclid},\text{Manh}\}$ \\
 \bottomrule
@@ -136,7 +126,7 @@ Una vez seleccionados los mejores hiperpar\'ametros, se realiz\'o un segundo pro
 Esta combinaci\'on mitiga el sesgo optimista del error \emph{in-bag} y el sesgo pesimista de la OOB. Adicionalmente se construy\'o un intervalo de confianza al 95\,\% mediante los percentiles 2.5 y 97.5 de la distribuci\'on de F1-macro OOB.
 
 \subsection{Resultados de la b\'usqueda de hiperpar\'ametros}
-La Tabla~\ref{tab:topcv} resume las dos mejores configuraciones por modelo base encontradas en la validaci\'on cruzada. La lista completa, con 162 combinaciones evaluadas incluyendo las variantes \texttt{\_FE}, est\'a en el repositorio como \texttt{grid\_search\_full.csv}.
+La Tabla~\ref{tab:topcv} resume las dos mejores configuraciones por modelo base encontradas en la validaci\'on cruzada. La lista completa, con 174 combinaciones evaluadas incluyendo las variantes \texttt{\_FE}, est\'a en el repositorio como \texttt{grid\_search\_full.csv}.
 
 \begin{table}[!t]
 \caption{Top-2 hiperpar\'ametros por modelo (F1-macro en CV de 5 pliegues, $\pm$ desviaci\'on est\'andar)}
@@ -190,7 +180,7 @@ KNN          & 1.000 & 0.820 & 0.886 & [0.780, 0.857] \\
 \end{tabular}
 \end{table}
 
-El estimador .632 sit\'ua al \'Arbol de Decisi\'on en primer lugar (F1$_{.632}=0.898$), seguido muy de cerca por SVM (0.891) y KNN (0.886). La Regresi\'on Log\'istica queda claramente por debajo (0.809), reflejando su limitaci\'on para capturar las fronteras de decisi\'on no lineales entre clases. Es notable que SVM, KNN y \'Arbol exhiben F1 \emph{in-bag} cercanos a uno, indicando alta capacidad de ajuste; sin embargo la brecha con el error OOB no es excesiva, indicando que el sobreajuste est\'a controlado por los hiperpar\'ametros seleccionados.
+El estimador .632 sit\'ua al \'Arbol de Decisi\'on en primer lugar (F1$_{.632}=0.898$), seguido muy de cerca por SVM (0.891) y KNN (0.886). La Regresi\'on Log\'istica queda claramente por debajo (0.809), reflejando su limitaci\'on para capturar las fronteras de decisi\'on no lineales entre clases. En SVM, el kernel RBF super\'o al polinomial: la mejor configuraci\'on \texttt{poly} alcanz\'o F1-macro CV de 0.837, por debajo del RBF ganador (0.844). Es notable que SVM, KNN y \'Arbol exhiben F1 \emph{in-bag} cercanos a uno, indicando alta capacidad de ajuste; sin embargo la brecha con el error OOB no es excesiva, indicando que el sobreajuste est\'a controlado por los hiperpar\'ametros seleccionados.
 
 \subsection{Ablaci\'on de ingenier\'ia de variables}
 Para evaluar si las variables derivadas agregan informaci\'on \'util, se entren\'o cada modelo sobre las 21 variables originales y sobre la matriz enriquecida de 79 variables. La Tabla~\ref{tab:ablation} reporta el cambio en F1-macro.

@@ -290,13 +290,13 @@ param_grids = {
     },
     'SVM': {
         'clf__C': [0.1, 1.0, 10.0],
-        'clf__kernel': ['linear', 'rbf'],
+        'clf__kernel': ['linear', 'rbf', 'poly'],
         'clf__gamma': ['scale', 0.1],
         'clf__class_weight': ['balanced'],
     },
     'SVM_FE': {
         'clf__C': [0.1, 1.0, 10.0],
-        'clf__kernel': ['linear', 'rbf'],
+        'clf__kernel': ['linear', 'rbf', 'poly'],
         'clf__gamma': ['scale', 0.1],
         'clf__class_weight': ['balanced'],
     },
