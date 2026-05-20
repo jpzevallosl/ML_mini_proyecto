@@ -22,7 +22,6 @@
           "LogisticRegression(C=10.0, max_iter=2000, random_state=42)"
         ]
       ],
-      "transform_input": null,
       "verbose": false,
       "scaler": "StandardScaler()",
       "clf": "LogisticRegression(C=10.0, max_iter=2000, random_state=42)",
@@ -34,10 +33,11 @@
       "clf__dual": false,
       "clf__fit_intercept": true,
       "clf__intercept_scaling": 1,
-      "clf__l1_ratio": 0.0,
+      "clf__l1_ratio": null,
       "clf__max_iter": 2000,
+      "clf__multi_class": "auto",
       "clf__n_jobs": null,
-      "clf__penalty": "deprecated",
+      "clf__penalty": "l2",
       "clf__random_state": 42,
       "clf__solver": "lbfgs",
       "clf__tol": 0.0001,
@@ -56,7 +56,6 @@
           "SVC(C=10.0, class_weight='balanced', gamma=0.1, random_state=42)"
         ]
       ],
-      "transform_input": null,
       "verbose": false,
       "scaler": "StandardScaler()",
       "clf": "SVC(C=10.0, class_weight='balanced', gamma=0.1, random_state=42)",
@@ -87,7 +86,6 @@
           "DecisionTreeClassifier(min_samples_split=10, random_state=42)"
         ]
       ],
-      "transform_input": null,
       "verbose": false,
       "clf": "DecisionTreeClassifier(min_samples_split=10, random_state=42)",
       "clf__ccp_alpha": 0.0,
@@ -116,7 +114,6 @@
           "KNeighborsClassifier(metric='manhattan', n_neighbors=3, weights='distance')"
         ]
       ],
-      "transform_input": null,
       "verbose": false,
       "scaler": "StandardScaler()",
       "clf": "KNeighborsClassifier(metric='manhattan', n_neighbors=3, weights='distance')",
@@ -354,13 +351,13 @@
   "bootstrap": {
     "LogReg": {
       "f1_in_mean": 0.8405141917494688,
-      "f1_oob_mean": 0.7901437294647524,
-      "f1_632": 0.808680059585528,
+      "f1_oob_mean": 0.7901366860185792,
+      "f1_632": 0.8086756081275466,
       "ci95_low": 0.7471424028054928,
       "ci95_high": 0.8296563881886104,
       "err_in": 0.15948580825053116,
-      "err_oob": 0.20985627053524758,
-      "err_632": 0.19131994041447195
+      "err_oob": 0.20986331398142077,
+      "err_632": 0.1913243918724534
     },
     "SVM": {
       "f1_in_mean": 0.9787477155440686,
@@ -383,14 +380,14 @@
       "err_632": 0.1032142244960276
     },
     "KNN": {
-      "f1_in_mean": 0.9996095064876486,
-      "f1_oob_mean": 0.8191091544494913,
-      "f1_632": 0.8855332839995331,
+      "f1_in_mean": 0.9996130622544811,
+      "f1_oob_mean": 0.8191231428915999,
+      "f1_632": 0.8855434332171402,
       "ci95_low": 0.7766602054004303,
       "ci95_high": 0.8580144796436109,
-      "err_in": 0.0003904935123514308,
-      "err_oob": 0.18089084555050872,
-      "err_632": 0.11446671600046684
+      "err_in": 0.0003869377455189005,
+      "err_oob": 0.18087685710840007,
+      "err_632": 0.1144565667828598
     }
   },
   "test_accuracy": 0.9233333333333333,

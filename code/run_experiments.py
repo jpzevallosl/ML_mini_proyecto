@@ -452,3 +452,41 @@ with open(f'{OUT}/summary.json', 'w') as f:
 print(f'  -> {OUT}/summary.json')
 
 print('\nDONE.')
+
+# ============================================================
+# 9. PREDICCIÓN SOBRE TEST EXTERNO (127 registros, pestaña 2)
+# ============================================================
+TEST_FILE = os.path.join(ROOT, 'test_127.csv')
+if os.path.exists(TEST_FILE):
+    print('\n' + '=' * 70)
+    print('9. PREDICCIÓN SOBRE TEST EXTERNO (127 registros sin etiqueta)')
+    print('=' * 70)
+
+    df_ext = pd.read_csv(TEST_FILE)
+    print(f'Test externo: {df_ext.shape[0]} registros, {df_ext.shape[1]} columnas')
+
+    # Entrenar el mejor modelo con TODOS los 1998 registros
+    final_full = best_estimators[best_name]
+    final_full.fit(X, y)  # X, y son los 1998 completos
+    X_ext = df_ext.values
+    y_ext_pred = final_full.predict(X_ext)
+
+    # Distribución de predicciones
+    unique, counts = np.unique(y_ext_pred, return_counts=True)
+    print(f'\nDistribución de predicciones del {best_name}:')
+    label_map = {1: 'Normal', 2: 'Sospechoso', 3: 'Patológico'}
+    for u, c in zip(unique, counts):
+        print(f'  Clase {u} ({label_map[u]}): {c} ({100*c/len(y_ext_pred):.1f}%)')
+
+    # Guardar CSV con predicciones
+    df_pred = df_ext.copy()
+    df_pred['CLASE_PREDICHA'] = y_ext_pred
+    pred_path = os.path.join(OUT, 'predicciones_test_127.csv')
+    df_pred.to_csv(pred_path, index=False)
+    print(f'\n  -> {pred_path}')
+    print(f'\nNota: el test externo NO tiene etiquetas reales. Las predicciones')
+    print(f'      se entregan para evaluación externa por el profesor.')
+else:
+    print(f'\nNota: no se encontró {TEST_FILE}. Coloque el archivo test_127.csv')
+    print(f'      en la raíz del proyecto para generar predicciones.')
+

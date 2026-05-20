@@ -29,7 +29,7 @@ Lima, Per\'u}
 \textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
 Lima, Per\'u}
 \and
-\IEEEauthorblockN{Marcos Morales}
+\IEEEauthorblockN{Marco Morales}
 \IEEEauthorblockA{\textit{Maestr\'ia en Inteligencia Artificial} \\
 \textit{Universidad de Ingenier\'ia y Tecnolog\'ia (UTEC)}\\
 Lima, Per\'u}
@@ -253,6 +253,9 @@ La matriz de confusi\'on porcentual se presenta en la Fig.~\ref{fig:cm}. Los aci
 \caption{Matriz de confusi\'on porcentual del \'Arbol de Decisi\'on sobre el conjunto de prueba (n=300). Filas: clase real, columnas: predicci\'on.}
 \label{fig:cm}
 \end{figure}
+
+\subsection{Predicci\'on sobre el conjunto de test externo}
+Finalmente, el \'Arbol de Decisi\'on fue reentrenado sobre la totalidad de los 1998 registros etiquetados y aplicado a los 127 registros del conjunto de test externo (pesta\~na~2 del archivo provisto), que no contiene etiquetas de clase. La distribuci\'on de las predicciones resultante fue: 99 registros clasificados como Normal (78.0\,\%), 14 como Sospechoso (11.0\,\%) y 14 como Patol\'ogico (11.0\,\%). Esta proporci\'on es coherente con la distribuci\'on observada en los datos de entrenamiento (77.8\,\%, 14.0\,\%, 8.2\,\%), lo cual es un indicador favorable de que el modelo no est\'a produciendo predicciones sesgadas. Las predicciones individuales se encuentran en el archivo \texttt{predicciones\_test\_127.csv} del repositorio.
 
 \section{Conclusiones}
 Se compararon cuatro algoritmos cl\'asicos de clasificaci\'on sobre 1998 cardiotocograf\'ias fetales, utilizando un protocolo robusto basado en validaci\'on cruzada estratificada de 5 pliegues seguida de \emph{bootstrap} con 500 r\'eplicas. Las conclusiones principales son:
